@@ -179,7 +179,7 @@
                             <ComboBoxItem Content="Low"/>
                         </ComboBox>
 
-                        <Button Content="Select Image" Click="SelectImageButton_Click" Margin="0,0,0,10"/>
+                        <Button Content="Select Image(s)" Click="SelectImageButton_Click" Margin="0,0,0,10"/>
                         <Image x:Name="selectedImagePreview" Height="100"/>
 
 
