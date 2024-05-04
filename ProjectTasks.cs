@@ -59,7 +59,7 @@ namespace Project1
 
         public DbSet<Task> Tasks { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public DbSet<Image> Images { get; set; } // TODO: Fix this line
+        public DbSet<Image> Images { get; set; } // TODO: Fix this line (I think it is fine but I can't remember why I added this so not removing it)
     }
 
 

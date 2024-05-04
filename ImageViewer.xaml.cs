@@ -19,13 +19,15 @@ namespace Project1
 
         private void UpdateImageDisplay()
         {
-            // Check to make sure that there is at least one image and index is in bounds
+            // Check to make sure that there is at least one image
             if (_images != null && _images.Count > 0 && _currentIndex >= 0 && _currentIndex < _images.Count)
             {
                 FullSizeImage.Source = _images[_currentIndex];
             }
         }
 
+
+        //Functionality for the previous and next buttons
         private void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentIndex > 0)

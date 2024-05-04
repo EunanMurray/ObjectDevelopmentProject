@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
-//THIS IS A COMMENT MEANT FOR TESTING
+//THIS IS A COMMENT MEANT FOR TESTING TO SEE IF GIT ON MY LAPTOP IS WORKING EDIT: IT WORKED
 
 namespace Project1 
 {
