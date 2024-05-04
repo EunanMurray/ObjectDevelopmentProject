@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using Project1; // Your namespace with Project and Task classes defined
+using Project1;
 using System.Windows.Controls;
 using WpfApp1;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Project1
 {
     public partial class MainWindow : Window
     {
-        private ProjectTasks db; // Handles your database operations
+        private ProjectTasks db;
 
         public MainWindow()
         {
@@ -111,7 +111,7 @@ namespace Project1
                 };
 
                 db.Tasks.Add(newTask);
-                db.SaveChanges(); // Necessary to get a TaskId for the new task
+                db.SaveChanges();
 
                 foreach (var imageData in selectedImagesData)
                 {
@@ -141,6 +141,7 @@ namespace Project1
             }
         }
 
+        //Button to refresh the projects and tasks
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -154,6 +155,7 @@ namespace Project1
             }
         }
 
+        //Button to refresh the projects and tasks and reload UI
         private void ReLoadProjectsAndTasks()
         {
             try
@@ -170,7 +172,7 @@ namespace Project1
                 LoadProjectsAndTasks();
                 LoadProjectsIntoComboBox();
 
-                //I'm forgettinga function
+                //I'm forgetting a function
             }
             catch (Exception ex)
             {
@@ -178,8 +180,11 @@ namespace Project1
             }
         }
 
+        //List of byte arrays to store inputted images
         private List<byte[]> selectedImagesData = new List<byte[]>();
 
+
+        //Button to select images function. Used to save them
         private void SelectImageButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -192,16 +197,17 @@ namespace Project1
                 var result = openFileDialog.ShowDialog();
                 if (result == true)
                 {
-                    // Clear previously selected images
+                    // Clear previously selected images out of the array
                     selectedImagesData.Clear();
 
+                    // Load the new images into the array
                     foreach (var filePath in openFileDialog.FileNames)
                     {
                         var imageData = File.ReadAllBytes(filePath);
                         selectedImagesData.Add(imageData);
                     }
 
-                    // For preview, display the first image
+                    // For preview display first image
                     if (selectedImagesData.Any())
                     {
                         var firstImage = new BitmapImage(new Uri(openFileDialog.FileNames.First()));
@@ -215,6 +221,7 @@ namespace Project1
             }
         }
 
+       //To view the images, cant remeber why I named it this
         private void ListBoxTasksInfo_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
@@ -238,7 +245,7 @@ namespace Project1
         }
 
 
-
+        //Converting the image from bytes back to images
         private ImageSource ConvertByteArrayToImageSource(byte[] imageData)
         {
             try
@@ -247,7 +254,7 @@ namespace Project1
                 {
                     var image = new BitmapImage();
                     image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad; // Important to avoid locking the file
+                    image.CacheOption = BitmapCacheOption.OnLoad; //Needed or the image would "lock"? Not sure why but stack overflow said so
                     image.StreamSource = ms;
                     image.EndInit();
                     return image;
@@ -266,10 +273,10 @@ namespace Project1
             {
                 var selectedItem = treeViewProjects.SelectedItem;
 
-                // Check if the selected item is a Project
+                // Make sure that the select item is in fact a project
                 if (selectedItem is Project selectedProject)
                 {
-                    // Possibly might implement a cascade delete so I can delete entire projects (Done)
+                    // DONE:  Possibly might implement a cascade delete so I can delete entire projects 
                     db.Projects.Remove(selectedProject);
                 }
                 // Check if the selected item is a Task
@@ -279,15 +286,15 @@ namespace Project1
                 }
                 else
                 {
-                    // If the selected item is neither a Task nor a Project
+                    // If the selected item is neither a Task nor a Project throw this error
                     MessageBox.Show("Please select a Project or Task to delete.");
                     return;
                 }
-
-                // Persist the changes to the database
+                
+                //save the changes
                 db.SaveChanges();
 
-                // Refresh the list to show the updated data
+                // Refresh everything
                 ReLoadProjectsAndTasks();
             }
             catch (Exception ex)
@@ -296,6 +303,7 @@ namespace Project1
             }
         }
 
+        //Image to Binary converter
         public class BinaryToImageConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -328,6 +336,8 @@ namespace Project1
                 throw new NotImplementedException();
             }
         }
+
+        //Loading Projects into the EditrojectComboBox (This is defunct as it was painful to try make work)
         private void LoadProjectsIntoEditProjectComboBox()
         {
             try
@@ -343,6 +353,7 @@ namespace Project1
             }
         }
 
+        //With above
         private void EditProjectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
@@ -361,6 +372,8 @@ namespace Project1
             }
         }
 
+
+        //This is the used edit function for tasks instead
         private void EditTaskComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
@@ -389,13 +402,13 @@ namespace Project1
                 {
                     taskToUpdate.Title = editTaskTitleTextBox.Text;
                     taskToUpdate.Description = editTaskDescriptionTextBox.Text;
-                    taskToUpdate.DueDate = DateTime.Parse(editTaskDueDateTextBox.Text); // Need to Add error handling
+                    taskToUpdate.DueDate = DateTime.Parse(editTaskDueDateTextBox.Text);
                     taskToUpdate.Status = editTaskStatusComboBox.Text;
                     taskToUpdate.Priority = editTaskStatusComboBox.Text;
 
                     db.SaveChanges();
                     MessageBox.Show("Task updated successfully.");
-                    // Optionally, refresh your UI here to reflect the updated task details
+                    
                 }
             }
             catch (Exception ex)
@@ -404,36 +417,32 @@ namespace Project1
             }
         }
 
-        // Search method
-        // Updated SearchProjectsAndTasks method with null checks
+        // Search method for projects
         private void SearchProjectsAndTasks(string searchText)
         {
             try
             {
-                // Check if treeViewProjects is not null and its Items collection is not null
                 if (treeViewProjects != null && treeViewProjects.Items != null)
                 {
                     if (string.IsNullOrWhiteSpace(searchText))
                     {
-                        // Reset the TreeView to display all projects and tasks
                         treeViewProjects.Items.Filter = null;
                     }
                     else
                     {
-                        // Filter projects and tasks based on search text
                         treeViewProjects.Items.Filter = item =>
                         {
-                            // Check if item is a Project
+
                             if (item is Project project)
                             {
-                                // Filter projects by name
+
                                 return project.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
                                        project.Tasks.Any(task => task.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
                             }
-                            // Check if item is a Task
+
                             else if (item is Task task)
                             {
-                                // Filter tasks by title
+
                                 return task.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
                             }
                             return false;
