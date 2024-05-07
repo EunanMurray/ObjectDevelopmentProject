@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace Project1
 {
@@ -82,6 +83,7 @@ namespace Project1
                 db.Projects.Add(newProject);
                 db.SaveChanges();
                 ReLoadProjectsAndTasks();
+                RefreshComboBoxes();
 
                 //Clear TextBoxes
                 projectNameTextBox.Text = string.Empty;
@@ -112,6 +114,7 @@ namespace Project1
 
                 db.Tasks.Add(newTask);
                 db.SaveChanges();
+                RefreshComboBoxes();
 
                 foreach (var imageData in selectedImagesData)
                 {
@@ -373,6 +376,23 @@ namespace Project1
         }
 
 
+        private void RefreshComboBoxes()
+        {
+            
+            if (editTaskComboBox.SelectedItem is Task selectedTask)
+            {
+                editTaskStatusComboBox.SelectedValue = selectedTask.Status;
+
+                editTaskPriorityComboBox.SelectedValue = selectedTask.Priority;
+            }
+            else
+            {
+       
+                editTaskStatusComboBox.SelectedIndex = -1;
+                editTaskPriorityComboBox.SelectedIndex = -1;
+            }
+        }
+
         //This is the used edit function for tasks instead
         private void EditTaskComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -385,6 +405,8 @@ namespace Project1
                     editTaskDueDateTextBox.Text = selectedTask.DueDate.ToString("yyyy-MM-dd");
                     editTaskStatusComboBox.Text = selectedTask.Status;
                     editTaskPriorityComboBox.Text = selectedTask.Priority;
+
+                    RefreshComboBoxes();
                 }
             }
             catch (Exception ex)
@@ -404,7 +426,7 @@ namespace Project1
                     taskToUpdate.Description = editTaskDescriptionTextBox.Text;
                     taskToUpdate.DueDate = DateTime.Parse(editTaskDueDateTextBox.Text);
                     taskToUpdate.Status = editTaskStatusComboBox.Text;
-                    taskToUpdate.Priority = editTaskStatusComboBox.Text;
+                    taskToUpdate.Priority = editTaskPriorityComboBox.Text;
 
                     db.SaveChanges();
                     MessageBox.Show("Task updated successfully.");
@@ -470,6 +492,60 @@ namespace Project1
                 MessageBox.Show("Error handling search text changed event: " + ex.Message);
             }
         }
+
+        //Refresh button for edit
+        private void RefreshAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ReLoadProjectsAndTasks(); // Assuming this method refreshes all necessary data
+                MessageBox.Show("All data has been refreshed.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error refreshing all data: " + ex.Message);
+            }
+        }
+
+        //button for exporting data as a json
+        private void ExportDataToJson()
+        {
+            try
+            {
+                using (var db = new ProjectTasks())
+                {
+                    var projects = db.Projects.Include("Tasks").ToList(); 
+                    foreach (var project in projects)
+                    {
+                        foreach (var task in project.Tasks)
+                        {
+                            task.Images = null; 
+                        }
+                    }
+
+                    string json = JsonConvert.SerializeObject(projects, Formatting.Indented,
+                        new JsonSerializerSettings
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                            NullValueHandling = NullValueHandling.Ignore 
+                        });
+
+                    File.WriteAllText(@"..\..\ExportedData.json", json);
+                    MessageBox.Show("Data exported successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error exporting data: " + ex.Message);
+            }
+        }
+
+
+        private void ExportDataToJson_Click(object sender, RoutedEventArgs e)
+        {
+            ExportDataToJson();
+        }
+
 
     }
 }

@@ -133,5 +133,30 @@ namespace Tests
             Assert.IsNotNull(projects, "Failed to load projects and their tasks.");
             Assert.IsTrue(projects.All(p => p.Tasks != null), "Tasks are not loaded with projects.");
         }
+        [TestMethod]
+        public void TestUpdateProjectDetails()
+        {
+            // Arrange
+            var db = new ProjectTasks();
+            var project = new Project
+            {
+                Name = "Update Project",
+                Description = "Original description",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(10)
+            };
+            db.Projects.Add(project);
+            db.SaveChanges();
+
+            // Act
+            project.Description = "Updated description";
+            db.SaveChanges();
+
+            // Assert
+            var updatedProject = db.Projects.FirstOrDefault(p => p.ProjectId == project.ProjectId);
+            Assert.AreEqual("Updated description", updatedProject.Description, "Project description was not updated.");
+        }
+
+
     }
 }
